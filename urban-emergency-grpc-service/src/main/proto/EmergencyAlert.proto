@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option java_package = "com.city.smart.grpc.alert.generated";
+option java_multiple_files = true;
+
+// ----------------------------------------------------
+// SERVICE DEFINITION (Le contrat de l'API)
+// ----------------------------------------------------
+service EmergencyService {
+    // Méthode 1 : Unary (un appel, une réponse) pour vérifier le statut d'une zone
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+
+    // Méthode 2 : Server Streaming (un appel, plusieurs réponses) pour les alertes en temps réel.
+    // C'est la force de gRPC.
+    rpc StreamAlerts(SubscriptionRequest) returns (stream Alert);
+}
+
+// ----------------------------------------------------
+// STRUCTURE DES MESSAGES
+// ----------------------------------------------------
+
+// Message envoyé pour une requête de statut simple
+message StatusRequest {
+    string zoneId = 1;
+}
+
+// Message de réponse pour la requête de statut
+message StatusResponse {
+    string status = 1; // Ex: "VERT", "ORANGE", "ROUGE"
+    string lastIncident = 2;
+}
+
+// Message d'alerte diffusé en temps réel
+message Alert {
+    enum AlertType {
+        INCIDENT_TRAFIC = 0;
+        MAUVAISE_METEO = 1;
+        POLLUTION_CRITIQUE = 2;
+        AUTRE = 3;
+    }
+
+    AlertType type = 1;
+    string zoneId = 2;
+    string message = 3;
+    int64 timestamp = 4; // Timestamp UNIX en millisecondes
+}
+
+// Message pour s'abonner au flux d'alertes
+message SubscriptionRequest {
+    repeated string zoneIds = 1; // Liste des zones à surveiller
+}

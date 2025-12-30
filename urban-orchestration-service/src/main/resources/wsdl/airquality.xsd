@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://city.smart/soap/airquality/schema"
+            targetNamespace="http://city.smart/soap/airquality/schema"
+            elementFormDefault="qualified">
+
+    <xsd:complexType name="airQualityMeasurement">
+        <xsd:sequence>
+            <xsd:element name="timestamp" type="xsd:dateTime"/>
+            <xsd:element name="value" type="xsd:float"/>
+            <xsd:element name="pollutant" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="getCurrentStatus">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="zoneName" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getCurrentStatusResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="return" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getHistoricalData">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="zoneName" type="xsd:string"/>
+                <xsd:element name="daysBack" type="xsd:int"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getHistoricalDataResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="return" type="tns:airQualityMeasurement" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

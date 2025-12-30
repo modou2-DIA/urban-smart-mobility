@@ -1,0 +1,48 @@
+# Ceci est l'artefact de documentation (SDL)
+schema {
+    query: Query
+}
+
+# Le type racine pour toutes les requêtes de lecture
+type Query {
+    # Permet de planifier un trajet en fonction de la qualité de l'air
+    planTrip(
+        zoneDepart: String!
+        zoneArrivee: String!    # ! signifie que l'argument est obligatoire
+    ): TripRecommendation 
+
+    # Nouvelle requête pour obtenir les données immobilières (de la DB locale)
+    properties(city: String): [Property]
+}
+
+# Modèle pour les données immobilières (directement mappé à l'Entité JPA)
+type Property {
+    id: ID!
+    address: String
+    city: String
+    areaSqMeters: Int
+    price: Float
+    type: String
+}
+
+# Modèle pour les données de Qualité de l'Air
+type AirQualityData {
+    aqiIndex: Int
+    status: String
+    advice: String # Le conseil basé sur l'état de l'air
+}
+
+# Modèle pour les données de Mobilité (simulé pour l'instant)
+type MobilityData {
+    transportType: String # 'Bus', 'Vélo', 'Métro'
+    durationMinutes: Int
+    routeDescription: String
+}
+
+# Modèle d'Agrégation : le résultat final de l'orchestration
+type TripRecommendation {
+    # Données du service REST/Mobilité
+    suggestedRoute: MobilityData
+    # Données du service SOAP/Qualité de l'Air
+    airQuality: AirQualityData
+}

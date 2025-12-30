@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------
+  # 1. API GATEWAY (Point d'entrée externe)
+  # ----------------------------------------
+  api-gateway:
+    # Vous devrez créer le Dockerfile/Image pour cette Gateway, mais pour l'instant
+    # nous la définissons comme un service dépendant.
+    # Pour un démarrage initial simple, vous pouvez utiliser une image Nginx ou Spring Cloud Gateway
+    build: ./api-gateway 
+    ports:
+      # C'est le SEUL port que le monde extérieur verra
+      - "80:8080"
+    networks:
+      - urban_network
+    restart: always
+    depends_on: 
+      urban-orchestration-service:
+        condition: service_healthy
+
+  # ----------------------------------------
+  # 2. SERVICE D'ORCHESTRATION (Client de tous)
+  # ----------------------------------------
+  urban-orchestration-service:
+    build: ./urban-orchestration-service
+      
+     
+    # Écrase les valeurs 'localhost' par les noms de services Docker
+    environment:
+      - orchestration.grpc.host=urban-emergency-grpc-service
+      - orchestration.grpc.port=9090
+      - orchestration.soap.host=urban-soap-service
+      - orchestration.soap.port=8081
+      - orchestration.rest.host=urban-rest-service
+      - orchestration.rest.port=8082
+      - orchestration.graphql.host=urban-graphql-service
+      - orchestration.graphql.port=8083
+    ports:
+      # N'expose ce port qu'à l'usage interne de la Gateway
+      - "8080:8080" 
+    networks:
+      - urban_network
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"] # Assurez-vous que /actuator/health existe!
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s # Laissez 30s pour démarrer avant le premier check
+    depends_on:
+      - urban-emergency-grpc-service
+      - urban-soap-service
+      - urban-rest-service
+      - urban-graphql-service
+      
+  # ----------------------------------------
+  # 3. SERVICES BACKEND (Fournisseurs de données)
+  # ----------------------------------------
+  urban-emergency-grpc-service:
+    build: ./urban-emergency-grpc-service
+    ports:
+      - "8084:9090" # Expose le port 9090 en interne pour le réseau Docker
+    networks:
+      - urban_network
+
+  urban-soap-service:
+    build: ./urban-soap-service
+    networks:
+      - urban_network
+    ports:
+      - "8081:8081" # Utiliser 'expose' car seul le réseau interne doit y accéder
+      
+  urban-rest-service:
+    build: ./urban-rest-service
+    networks:
+      - urban_network
+    ports:
+      - "8082:8082"
+      
+  urban-graphql-service:
+    build: ./urban-graphql-service
+    networks:
+      - urban_network
+    ports:
+      - "8083:8083"
+    environment: # Ajout des variables pour appeler l'Orchestrateur
+      - orchestration.rest.host=urban-orchestration-service # Nom du service Docker
+      - orchestration.rest.port=8080 # Port interne de l'Orchestrateur
+# ----------------------------------------
+  # 4. BASE DE DONNÉES CENTRALE (PostgreSQL)
+  # ----------------------------------------
+  db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: urban_user
+      POSTGRES_PASSWORD: urban_password
+      POSTGRES_DB: urban_db
+    ports:
+      - "5432:5432" # Exposer pour le développement local si besoin
+    networks:
+      - urban_network
+    volumes:
+      - urban_db_data:/var/lib/postgresql/data # Persistance des données (optionnel mais recommandé)
+    healthcheck: # Ajout d'un healthcheck standard pour la DB
+      test: ["CMD-SHELL", "pg_isready -U urban_user -d urban_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Mise à jour des volumes et networks
+volumes:
+  urban_db_data:
+    driver: local
+
+networks:
+  urban_network:
+    driver: bridge

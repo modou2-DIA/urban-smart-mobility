@@ -1,0 +1,17 @@
+server:
+  port: 8080 # Le port public de la Gateway
+
+spring:
+  application:
+    name: api-gateway-service
+  cloud:
+    gateway:
+      routes:
+        # Route pour l'Orchestrateur urban-orchestration-service
+        - id: orchestration_route
+          # Le chemin d'accès que le client va utiliser (ex: /api/v1/urban/...)
+          uri:  http://urban-orchestration-service:8080
+          predicates:
+            - Path=/api/urban/orchestrator/**
+          filters:
+            - RewritePath=/api/urban/orchestrator/(?<segment>.*), /api/v1/${segment}

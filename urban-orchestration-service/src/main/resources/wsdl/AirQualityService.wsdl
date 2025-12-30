@@ -1,0 +1,92 @@
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://city.smart/soap/airquality" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="AirQualityService" targetNamespace="http://city.smart/soap/airquality">
+<wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://city.smart/soap/airquality" elementFormDefault="unqualified" targetNamespace="http://city.smart/soap/airquality" version="1.0">
+<xs:element name="getCurrentStatus" type="tns:getCurrentStatus"/>
+<xs:element name="getCurrentStatusResponse" type="tns:getCurrentStatusResponse"/>
+<xs:element name="getHistoricalData" type="tns:getHistoricalData"/>
+<xs:element name="getHistoricalDataResponse" type="tns:getHistoricalDataResponse"/>
+<xs:complexType name="getHistoricalData">
+<xs:sequence>
+<xs:element minOccurs="0" name="zoneName" type="xs:string"/>
+<xs:element name="daysBack" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getHistoricalDataResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:airQualityMeasurement"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="airQualityMeasurement">
+<xs:sequence>
+<xs:element name="aqiIndex" type="xs:int"/>
+<xs:element minOccurs="0" name="arretName" type="xs:string"/>
+<xs:element minOccurs="0" name="measurementId" type="xs:long"/>
+<xs:element name="pm25" type="xs:double"/>
+<xs:element minOccurs="0" name="status" type="xs:string"/>
+<xs:element minOccurs="0" name="timestamp" type="tns:localDateTime"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType final="extension restriction" name="localDateTime">
+<xs:sequence/>
+</xs:complexType>
+<xs:complexType name="getCurrentStatus">
+<xs:sequence>
+<xs:element minOccurs="0" name="zoneName" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCurrentStatusResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+</wsdl:types>
+<wsdl:message name="getCurrentStatusResponse">
+<wsdl:part element="tns:getCurrentStatusResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getHistoricalData">
+<wsdl:part element="tns:getHistoricalData" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getHistoricalDataResponse">
+<wsdl:part element="tns:getHistoricalDataResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCurrentStatus">
+<wsdl:part element="tns:getCurrentStatus" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:portType name="AirQualityEndpoint">
+<wsdl:operation name="getHistoricalData">
+<wsdl:input message="tns:getHistoricalData" name="getHistoricalData"> </wsdl:input>
+<wsdl:output message="tns:getHistoricalDataResponse" name="getHistoricalDataResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCurrentStatus">
+<wsdl:input message="tns:getCurrentStatus" name="getCurrentStatus"> </wsdl:input>
+<wsdl:output message="tns:getCurrentStatusResponse" name="getCurrentStatusResponse"> </wsdl:output>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="AirQualityServiceSoapBinding" type="tns:AirQualityEndpoint">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="getHistoricalData">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getHistoricalData">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getHistoricalDataResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCurrentStatus">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCurrentStatus">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCurrentStatusResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="AirQualityService">
+<wsdl:port binding="tns:AirQualityServiceSoapBinding" name="AirQualityPort">
+<soap:address location="http://localhost:8081/soap-api/airquality"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

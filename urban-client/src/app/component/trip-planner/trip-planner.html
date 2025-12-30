@@ -1,0 +1,65 @@
+<div class="trip-container">
+    <h2>Planificateur de Trajet Intelligent</h2>
+
+   <div class="input-section">
+    
+        <label for="startZone">Zone de Départ:</label>
+        <select id="startZone" [(ngModel)]="zoneDepartInput">
+            <option value="" disabled>-- Choisir une zone de départ --</option>
+            <option *ngFor="let zone of availableZones" [value]="zone">{{ zone }}</option>
+        </select>
+
+        <label for="destinationZone">Zone d'Arrivée:</label>
+        <select id="destinationZone" [(ngModel)]="zoneArriveeInput">
+            <option value="" disabled>-- Choisir une zone d'arrivée --</option>
+            <option *ngFor="let zone of availableZones" [value]="zone">{{ zone }}</option>
+        </select>
+        
+        <button (click)="fetchRecommendation(zoneDepartInput, zoneArriveeInput)" [disabled]="loading || !zoneDepartInput || !zoneArriveeInput">
+            {{ loading ? 'Recherche en cours...' : 'Planifier le Trajet' }}
+        </button>
+
+        <div class="alert-setup-section">
+            <h4>🔔 Gestion des Alertes (Propulsé par gRPC Streaming)</h4>
+            <input type="checkbox" id="pollutionAlert" [(ngModel)]="isAlertActive" (change)="toggleAlertSubscription()">
+            <label for="pollutionAlert">M'alerter si la zone **{{ zoneArriveeInput }}** atteint le statut 'Pollué' dans l'heure.</label>
+            
+            <div *ngIf="alertStatus === 'SUBSCRIBED'" class="success-message">
+                Abonnement actif ! Le gRPC Server surveille la zone en temps réel.
+            </div>
+            <div *ngIf="alertStatus === 'RECEIVING_DATA'" class="warning-message pulsating-dot">
+                **ALERTE RÉELLE !** Forte augmentation de la pollution détectée à {{ zoneArriveeInput }}. Changez votre trajet.
+            </div>
+        </div>
+        <hr/>
+
+    </div>
+    <hr/>
+
+    <div *ngIf="loading" class="info-message">Chargement de la recommandation...</div>
+    
+    <div *ngIf="error && !loading" class="error-message">🚨 Erreur: {{ error }}</div>
+    
+    <div *ngIf="!loading && !error && !recommendation" class="info-message">Entrez les zones de départ et d'arrivée pour commencer la planification.</div>
+
+    <div *ngIf="recommendation && !loading" class="card">
+        <h3>✅ Résultat de l'Orchestration pour **{{ zoneDepartInput }}** vers **{{ zoneArriveeInput }}**</h3>
+          <div class="section-box">
+            <h4>💨 Qualité de l'Air:</h4>
+            <p><strong>Statut AQI:</strong> {{ recommendation.airQuality?.status }}</p> 
+            <p><strong>Conseil:</strong> {{ recommendation.airQuality?.advice }}</p>
+        </div>
+         <hr/>
+        <div class="section-box">
+            <h4>🚀 Itinéraire Suggéré:</h4>
+            <p><strong>Type:</strong> {{ recommendation.suggestedRoute?.transportType }}</p> 
+            <p><strong>Durée Estimée:</strong> {{ recommendation.suggestedRoute?.durationMinutes }} minutes</p>
+            <p><strong>Détail:</strong> <em>{{ recommendation.suggestedRoute?.routeDescription }}</em></p>
+        </div>
+        
+       
+        
+      
+        
+    </div>
+</div>

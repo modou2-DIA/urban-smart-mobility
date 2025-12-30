@@ -1,0 +1,28 @@
+<div class="container">
+    <h2>🏠 Catalogue Immobilier (Via DB Locale)</h2>
+    <div *ngIf="loading">Chargement des propriétés...</div>
+    <div *ngIf="error" class="error-message">🚨 Erreur: {{ error }}</div>
+
+    <table *ngIf="properties.length > 0" class="property-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Adresse</th>
+                <th>Ville</th>
+                <th>Type</th>
+                <th>Superficie (m²)</th>
+                <th>Prix (€)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let prop of properties">
+                <td>{{ prop.id }}</td>
+                <td>{{ prop.address }}</td>
+                <td>{{ prop.city }}</td>
+                <td>{{ prop.type }}</td>
+                <td>{{ prop.areaSqMeters }}</td>
+                <td>{{ prop.price | number:'1.2-2' }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
